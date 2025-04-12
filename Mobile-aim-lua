@@ -1,0 +1,71 @@
+--[[
+  Free Fire MAX - Mobile Aim Assist (Touch + Injection)
+  Features:
+  - Touchscreen-friendly (drag-to-aim)
+  - In-app execution bridge
+  - Memory-safe initialization
+--]]
+
+-- 🔧 CONFIG (Edit these)
+local Config = {
+    Always_Run_In_App = true,    -- Only works when FF is focused
+    Remove_Aim_Mechanics = true, -- Disables game's built-in aim assist
+    Touch_Radius = 80,           -- Pixels around touch point to activate
+    NonInit_Mode = true          -- Memory stability toggle
+}
+
+-- 🛠️ INJECTION BRIDGE (For loading into FF MAX)
+if Config.Always_Run_In_App then
+    local app_name = GetForegroundApp()
+    if app_name ~= "com.dts.freefiremax" then
+        StopScript() -- Auto-exit if not in Free Fire
+    end
+end
+
+-- 🔄 NONINIT FUNCTION (Memory Safety)
+function NonInit()
+    if Config.NonInit_Mode then
+        ClearAimAssistCache()  -- Hypothetical memory cleanup
+        OverwriteOldReferences() -- Prevents detection
+    end
+end
+
+-- 👆 TOUCH LISTENER (Mobile Controls)
+function OnTouchEvent(x, y, action)
+    -- action: 0 = DOWN, 1 = UP, 2 = MOVE
+    if action == 0 or action == 2 then
+        local target = FindTargetAtScreenPos(x, y, Config.Touch_Radius)
+        if target then
+            AimAt(target, Config.Touch_Radius)
+        end
+    end
+end
+
+-- 🎯 MODIFIED AIMING CORE
+function AimAt(target, radius)
+    if Config.Remove_Aim_Mechanics then
+        DisableGameAimAssist() -- Hypothetical native call
+    end
+
+    local predicted_pos = CalculatePrediction(target)
+    SmoothAim(predicted_pos, radius)
+end
+
+-- 📱 MAIN LOOP (Mobile Optimized)
+function Main()
+    NonInit() -- Memory safety first
+    
+    while true do
+        local touches = GetActiveTouches() -- Get all current touches
+        for _, touch in pairs(touches) do
+            OnTouchEvent(touch.x, touch.y, touch.action)
+        end
+        Sleep(16) -- ~60FPS
+    end
+end
+
+-- 🚀 INJECTION POINT (Critical for Android/iOS)
+if Config.Always_Run_In_App then
+    RegisterEvent("TOUCH", OnTouchEvent) -- Hook into game's touch system
+    Main()
+end
