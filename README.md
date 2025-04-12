@@ -22,5 +22,5 @@
 
 2. **Setup**  
    ```bash
-   git clone https://github.com/yourusername/FF-CombatOptimizer.git --branch stable
+   git clone https://github.com/vaasu-alt/FF-CombatOptimizer.git --branch stable
    cd FF-CombatOptimizer
